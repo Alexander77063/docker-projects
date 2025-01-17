@@ -1,0 +1,49 @@
+graph TB
+    subgraph "AWS Cloud"
+        subgraph "Region"
+            subgraph "VPC"
+                subgraph "Public Subnet AZ1"
+                    ALB["Application Load Balancer"]
+                    NAT1["NAT Gateway 1"]
+                end
+                
+                subgraph "Public Subnet AZ2"
+                    NAT2["NAT Gateway 2"]
+                end
+                
+                subgraph "Private Subnet AZ1"
+                    ECS1["ECS Tasks"]
+                end
+                
+                subgraph "Private Subnet AZ2"
+                    ECS2["ECS Tasks"]
+                end
+                
+                IGW["Internet Gateway"]
+            end
+            
+            ECR["Amazon ECR"]
+            R53["Route 53"]
+            ACM["Certificate Manager"]
+        end
+    end
+    
+    BROWSER["Browser"] --> R53
+    R53 --> ALB
+    ALB --> ECS1
+    ALB --> ECS2
+    ECS1 --> ECR
+    ECS2 --> ECR
+    ECS1 --> NAT1
+    ECS2 --> NAT2
+    NAT1 --> IGW
+    NAT2 --> IGW
+    BROWSER --> IGW
+    ALB --> ACM
+    
+    classDef aws fill:#ff9900,stroke:#232f3e,stroke-width:2px;
+    classDef subnet fill:#4d27aa,stroke:#232f3e,stroke-width:2px,color:white;
+    classDef external fill:#d6d6d6,stroke:#232f3e,stroke-width:2px;
+    
+    class ALB,NAT1,NAT2,ECS1,ECS2,ECR,R53,ACM,IGW aws;
+    class BROWSER external;
