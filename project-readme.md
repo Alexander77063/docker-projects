@@ -125,11 +125,3 @@ docker push your-account-id.dkr.ecr.your-region.amazonaws.com/your-app-name:late
 3. Validate SSL certificate status
 4. Check container logs in CloudWatch
 5. Verify target group health checks
-
-## Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE.md file for details
