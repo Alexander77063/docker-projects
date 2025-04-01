@@ -15,7 +15,7 @@ RUN yum install -y wget
 RUN yum install -y httpd
 
 # Install PHP and various extensions
-RUN amazon-linux-extras enable php8.1 && \
+RUN amazon-linux-extras enable php7.4 && \
   yum clean metadata && \
   yum install -y \
     php \
