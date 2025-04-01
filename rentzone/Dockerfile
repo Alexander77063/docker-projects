@@ -1,5 +1,5 @@
 # Use the latest version of the Amazon Linux base image
-FROM amazonlinux:latest
+FROM amazonlinux:2023
 # Set the maintainer label for the image
 
 # Update all installed packages to their latest versions
