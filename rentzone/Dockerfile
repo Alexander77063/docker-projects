@@ -2,7 +2,7 @@
 FROM amazonlinux:latest
 # Set the maintainer label for the image
 
-# Update all installed packages to thier latest versions
+# Update all installed packages to their latest versions
 RUN yum update -y 
 
 # Install the unzip package, which we will use it to extract the web files from the zip folder
