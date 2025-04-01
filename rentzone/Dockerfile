@@ -1,26 +1,20 @@
 # Use the latest version of the Amazon Linux base image
 FROM amazonlinux:2023
 
-RUN dnf install -y php php-common php-pear php-cgi php-curl php-mbstring php-gd php-mysqlnd php-gettext php-json php-xml php-fpm php-intl php-zip
-# Set the maintainer label for the image
+# Update and install PHP packages
+RUN dnf update -y && \
+    dnf install -y php php-common php-pear php-cgi php-curl php-mbstring php-gd php-mysqlnd php-gettext php-json php-xml php-fpm php-intl php-zip wget unzip httpd
 
-# Download the MySQL repository package
-RUN wget https://repo.mysql.com/mysql80-community-release-el7-3.noarch.rpm
-
-# Import the GPG key for the MySQL repository
-RUN rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
-
-# Install the MySQL repository package
-RUN yum localinstall mysql80-community-release-el7-3.noarch.rpm -y
-
-# Install the MySQL community server package
-RUN yum install mysql-community-server -y
+# Install MySQL for AL2023
+# AL2023 uses dnf instead of yum and has different repository structure
+RUN dnf install -y https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm && \
+    dnf install -y mysql-community-server
 
 # Change directory to the html directory
 WORKDIR /var/www/html
 
 # Install Git
-RUN yum install -y git
+RUN dnf install -y git
 
 # Set the build argument directive
 ARG PERSONAL_ACCESS_TOKEN
@@ -67,29 +61,19 @@ RUN chmod -R 777 /var/www/html
 # Give full access to the storage directory
 RUN chmod -R 777 storage/
 
-# Use the sed command to search the .env file for a line that starts with APP_ENV= and replace everything after the = character
+# Update .env file settings
 RUN sed -i '/^APP_ENV=/ s/=.*$/=production/' .env
-
-# Use the sed command to search the .env file for a line that starts with APP_URL= and replace everything after the = character
 RUN sed -i "/^APP_URL=/ s/=.*$/=https:\/\/$DOMAIN_NAME\//" .env
-
-# Use the sed command to search the .env file for a line that starts with DB_HOST= and replace everything after the = character
 RUN sed -i "/^DB_HOST=/ s/=.*$/=$RDS_ENDPOINT/" .env
-
-# Use the sed command to search the .env file for a line that starts with DB_DATABASE= and replace everything after the = character
 RUN sed -i "/^DB_DATABASE=/ s/=.*$/=$RDS_DB_NAME/" .env 
+RUN sed -i "/^DB_USERNAME=/ s/=.*$/=$RDS_MASTER_USERNAME/" .env
+RUN sed -i "/^DB_PASSWORD=/ s/=.*$/=$RDS_DB_PASSWORD/" .env
 
-# Use the sed command to search the .env file for a line that starts with DB_USERNAME= and replace everything after the = character
-RUN  sed -i "/^DB_USERNAME=/ s/=.*$/=$RDS_MASTER_USERNAME/" .env
-
-# Use the sed command to search the .env file for a line that starts with DB_PASSWORD= and replace everything after the = character
-RUN  sed -i "/^DB_PASSWORD=/ s/=.*$/=$RDS_DB_PASSWORD/" .env
-
-# Copy the file, AppServiceProvider.php from the host file system into the container at the path app/Providers/AppServiceProvider.php
+# Copy the file, AppServiceProvider.php from the host file system into the container
 COPY AppServiceProvider.php app/Providers/AppServiceProvider.php
 
 # Expose the default Apache and MySQL ports
 EXPOSE 80 3306
 
-# Start Apache and MySQL
+# Start Apache in the foreground
 ENTRYPOINT ["/usr/sbin/httpd", "-D", "FOREGROUND"]
