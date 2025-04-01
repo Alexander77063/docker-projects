@@ -1,5 +1,6 @@
 # Use the latest version of the Amazon Linux base image
-FROM amazonlinux:2
+FROM amazonlinux:latest
+# Set the maintainer label for the image
 
 # Update all installed packages to thier latest versions
 RUN yum update -y 
@@ -14,7 +15,7 @@ RUN yum install -y wget
 RUN yum install -y httpd
 
 # Install PHP and various extensions
-RUN amazon-linux-extras enable php7.4 && \
+RUN amazon-linux-extras enable php8.1 && \
   yum clean metadata && \
   yum install -y \
     php \
